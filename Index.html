@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>My Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber:        #B87200;
+    --amber-light:  #E8920A;
+    --amber-pale:   #FEF0D0;
+    --amber-pale2:  #FDF6E8;
+    --bg:           #F2EEE7;
+    --bg2:          #FFFFFF;
+    --bg3:          #EAE4DA;
+    --bg4:          #DDD6C8;
+    --text:         #12100C;
+    --text-mid:     #3D3428;
+    --text-dim:     #7A6E5E;
+    --border:       #D4C9B8;
+    --border-mid:   #BEB0A0;
+    --green:        #1A8A4A;
+    --green-dark:   #146638;
+    --green-light:  #DFF5E8;
+    --green-border: #8ACBAA;
+    --red:          #C03030;
+    --red-light:    #FCDEDE;
+    --blue:         #1A5DAA;
+    --blue-dark:    #123F7A;
+    --blue-light:   #DDEAF8;
+    --blue-border:  #88B4E0;
+    --purple:       #6B3DAA;
+    --purple-light: #EDE4F8;
+    --purple-border:#B099D8;
+    --orange:       #C05A00;
+    --orange-light: #FEF0DC;
+    --orange-border:#E8A860;
+    --nav-h:        68px;
+    --radius:       14px;
+    --radius-sm:    9px;
+    --shadow-sm:    0 2px 8px rgba(80,60,20,0.10);
+    --shadow:       0 4px 20px rgba(80,60,20,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: calc(var(--nav-h) + 10px);
+  }
+
+  /* ══ REMINDER BANNER ══ */
+  #reminderBanner {
+    display: none;
+    background: linear-gradient(135deg, #FFF3DC, #FFEABC);
+    border-bottom: 2px solid var(--orange-border);
+    padding: 0;
+    position: sticky; top: 0; z-index: 110;
+    box-shadow: 0 3px 12px rgba(192,90,0,0.15);
+  }
+  #reminderBanner.show { display: block; }
+  .reminder-banner-inner {
+    padding: 10px 14px;
+  }
+  .reminder-banner-top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 6px;
+  }
+  .reminder-banner-title {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 900;
+    color: var(--orange); letter-spacing: 0.3px;
+  }
+  .reminder-banner-title svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .btn-close-banner {
+    background: rgba(192,90,0,0.10); border: 1.5px solid var(--orange-border);
+    color: var(--orange); width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; font-weight: 900;
+    flex-shrink: 0; transition: background 0.15s;
+  }
+  .btn-close-banner:active { background: rgba(192,90,0,0.20); }
+
+  .reminder-list { display: flex; flex-direction: column; gap: 5px; }
+  .reminder-item {
+    background: rgba(255,255,255,0.75);
+    border: 1.5px solid var(--orange-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 11px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .reminder-item-left { flex: 1; min-width: 0; }
+  .reminder-item-name { font-size: 13px; font-weight: 900; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reminder-item-sub  { font-size: 11px; font-weight: 700; color: var(--orange); margin-top: 1px; }
+  .reminder-item-tag  {
+    font-size: 10px; font-weight: 900; letter-spacing: 0.8px;
+    padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+  .tag-due     { background: #FDEADC; color: #C05000; border: 1px solid #E8A860; }
+  .tag-overdue { background: var(--red-light); color: var(--red); border: 1px solid rgba(192,48,48,0.4); }
+  .btn-dismiss-item {
+    background: none; border: none; color: var(--text-dim);
+    font-size: 16px; cursor: pointer; padding: 0 2px;
+    flex-shrink: 0; line-height: 1;
+  }
+
+  /* ══ HEADER ══ */
+  .header {
+    background: linear-gradient(160deg, #FFF8EC 0%, #FFF0D0 55%, #FFF8EC 100%);
+    border-bottom: 2px solid var(--border);
+    padding: 16px 18px 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(80,60,20,0.10);
+  }
+  .header-top {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 13px;
+  }
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--amber); letter-spacing: 1px;
+  }
+  .header-subtitle {
+    font-size: 10px; font-weight: 700; color: var(--text-dim);
+    letter-spacing: 2.2px; text-transform: uppercase; margin-top: 2px;
+  }
+  .header-right { display: flex; align-items: center; gap: 9px; }
+  .btn-add {
+    background: linear-gradient(135deg, var(--amber), var(--amber-light));
+    border: none; color: #fff; font-family: 'Nunito', sans-serif;
+    font-weight: 900; font-size: 14px; padding: 10px 22px; border-radius: 50px;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 3px 14px rgba(184,114,0,0.40); transition: transform 0.15s;
+  }
+  .btn-add:active { transform: scale(0.94); }
+  .btn-bell {
+    background: var(--bg3); border: 2px solid var(--border);
+    color: var(--text-dim); width: 40px; height: 40px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative; transition: all 0.18s; flex-shrink: 0;
+  }
+  .btn-bell svg { width: 18px; height: 18px; }
+  .btn-bell.has-alerts { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+  .bell-dot {
+    position: absolute; top: 4px; right: 4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); border: 1.5px solid #fff; display: none;
+  }
+  .btn-bell.has-alerts .bell-dot { display: block; }
+
+  /* ══ SEARCH + FILTER ══ */
+  .controls { display: flex; gap: 9px; align-items: center; padding: 0 0 11px; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-wrap svg {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%); color: var(--text-dim); width: 15px; height: 15px;
+  }
+  .search-input {
+    width: 100%; background: var(--bg2); border: 2px solid var(--border);
+    color: var(--text); font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 600; padding: 10px 12px 10px 34px;
+    border-radius: 50px; outline: none; transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--amber); }
+  .search-input::placeholder { color: var(--text-dim); font-weight: 400; }
+
+  /* ══ STATUS PILLS ══ */
+  .stats-bar {
+    display: flex; gap: 8px; padding: 0 0 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stat-pill {
+    background: var(--bg2); border: 2px solid var(--border);
+    border-radius: 50px; padding: 6px 14px; white-space: nowrap;
+    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+  }
+  .stat-pill .pill-label { font-size: 12.5px; font-weight: 800; color: var(--text-mid); }
+  .stat-pill .pill-count {
+    font-size: 12px; font-weight: 900; background: var(--bg3);
+    padding: 1px 7px; border-radius: 20px; min-width: 22px;
+    text-align: center; color: var(--text-mid);
+  }
+  .stat-pill.active-all      { border-color: var(--amber);  background: var(--amber-pale); }
+  .stat-pill.active-all      .pill-label { color: var(--amber); }
+  .stat-pill.active-all      .pill-count { background: rgba(184,114,0,0.13); color: var(--amber); }
+  .stat-pill.active-placed   { border-color: var(--blue);   background: var(--blue-light); }
+  .stat-pill.active-placed   .pill-label { color: var(--blue-dark); }
+  .stat-pill.active-placed   .pill-count { background: rgba(26,93,170,0.13); color: var(--blue-dark); }
+  .stat-pill.active-received { border-color: var(--green);  background: var(--green-light); }
+  .stat-pill.active-received .pill-label { color: var(--green-dark); }
+  .stat-pill.active-received .pill-count { background: rgba(26,138,74,0.13); color: var(--green-dark); }
+
+  /* ══ ORDERS LIST ══ */
+  .orders-list { padding: 10px 15px 0; display: flex; flex-direction: column; gap: 11px; }
+
+  /* ══ EMPTY ══ */
+  .empty-state { text-align: center; padding: 64px 28px; display: none; }
+  .empty-state.show { display: block; }
+  .empty-icon {
+    width: 82px; height: 82px; background: var(--bg2);
+    border: 2px solid var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px; font-size: 34px; box-shadow: var(--shadow-sm);
+  }
+  .empty-state h3 { font-family:'Cinzel',serif; font-size:17px; color:var(--amber); margin-bottom:8px; }
+  .empty-state p  { color: var(--text-mid); font-size: 14px; font-weight: 600; line-height: 1.65; }
+  .no-results { text-align:center; padding:40px 20px; color:var(--text-mid); font-size:14px; font-weight:700; display:none; }
+  .no-results.show { display: block; }
+
+  /* ══ CARD ══ */
+  .order-card {
+    background: var(--bg2); border: 2px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow-sm); animation: slideIn 0.26s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(9px)} to{opacity:1;transform:translateY(0)} }
+  .order-card:active { opacity: 0.92; }
+  .order-card.type-order  { border-left: 5px solid var(--blue); }
+  .order-card.type-repair { border-left: 5px solid var(--purple); }
+  .order-card.has-alert   { border-color: var(--orange-border); }
+  .order-card.has-alert.type-order  { border-left-color: var(--blue); }
+  .order-card.has-alert.type-repair { border-left-color: var(--purple); }
+
+  .card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 13px 9px; border-bottom: 1.5px solid var(--border);
+  }
+  .card-top-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .type-badge {
+    font-size: 10px; font-weight: 900; letter-spacing: 1.2px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 50px;
+  }
+  .badge-order  { background: var(--blue-light);   color: var(--blue-dark);  border: 1.5px solid var(--blue-border); }
+  .badge-repair { background: var(--purple-light);  color: var(--purple);     border: 1.5px solid var(--purple-border); }
+
+  .phone-link {
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+    color: var(--blue-dark); text-decoration: none;
+    background: var(--blue-light); border: 1.5px solid var(--blue-border);
+    padding: 3px 10px; border-radius: 50px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .phone-link svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+  .status-chip {
+    font-size: 10.5px; font-weight: 900; padding: 3px 10px;
+    border-radius: 50px; letter-spacing: 0.8px; text-transform: uppercase;
+  }
+  .chip-placed   { background: var(--blue-light);  color: var(--blue-dark);  border: 1.5px solid var(--blue-border); }
+  .chip-received { background: var(--green-light); color: var(--green-dark); border: 1.5px solid var(--green-border); }
+
+  /* Expected date alert strip on card */
+  .card-alert-strip {
+    background: linear-gradient(90deg, #FFF3DC, #FFEABC);
+    border-bottom: 1.5px solid var(--orange-border);
+    padding: 6px 13px;
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 800; color: var(--orange);
+  }
+  .card-alert-strip svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .card-alert-strip.overdue { background: linear-gradient(90deg, #FCDEDE, #F8C8C8); border-color: rgba(192,48,48,0.4); color: var(--red); }
+
+  .card-body { padding: 10px 13px 11px; }
+  .customer-name { font-size: 17px; font-weight: 900; color: var(--text); margin-bottom: 9px; }
+
+  .card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .meta-row { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.3px; font-weight: 800; }
+  .meta-value { font-size: 13.5px; color: var(--text-mid); font-weight: 800; }
+  .meta-value.amber  { color: var(--amber);   font-weight: 900; }
+  .meta-value.orange { color: var(--orange);  font-weight: 900; }
+
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 13px; background: var(--bg3); border-top: 1.5px solid var(--border);
+  }
+  .dates { font-size: 11.5px; color: var(--text-dim); line-height: 1.6; font-weight: 600; }
+  .dates strong { color: var(--text-mid); font-weight: 900; }
+  .dates .exp-date { color: var(--orange); font-weight: 900; }
+  .dates .exp-date.overdue { color: var(--red); }
+
+  .card-actions { display: flex; gap: 7px; align-items: center; }
+  .btn-icon {
+    background: var(--bg2); border: 2px solid var(--border); color: var(--text-mid);
+    width: 34px; height: 34px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.18s; flex-shrink: 0;
+  }
+  .btn-icon svg { width: 14px; height: 14px; }
+  .btn-icon.edit:active  { border-color:var(--amber); color:var(--amber); background:var(--amber-pale); }
+  .btn-icon.trash:active { border-color:var(--red);   color:var(--red);   background:var(--red-light); }
+
+  .btn-handover {
+    background: var(--green); border: none; color: #fff;
+    width: 38px; height: 38px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 17px;
+    box-shadow: 0 3px 10px rgba(26,138,74,0.40); transition: transform 0.15s; flex-shrink: 0;
+  }
+  .btn-handover:active { transform: scale(0.90); }
+
+  /* ══ BOTTOM NAV ══ */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: var(--nav-h); background: #FFFFFF;
+    border-top: 2px solid var(--border);
+    display: flex; box-shadow: 0 -3px 16px rgba(80,60,20,0.12); z-index: 100;
+  }
+  .nav-tab {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    cursor: pointer; transition: background 0.18s;
+    border-bottom: 3px solid transparent;
+    padding-bottom: max(0px,env(safe-area-inset-bottom));
+  }
+  .nav-tab:active { background: var(--bg3); }
+  .nav-tab.active { border-bottom-color: var(--amber); background: var(--amber-pale2); }
+  .nav-tab-label  { font-family:'Cinzel',serif; font-size:15px; font-weight:700; letter-spacing:2px; color:var(--text-dim); transition:color 0.18s; }
+  .nav-tab-count  { font-size:11px; font-weight:800; color:var(--text-dim); letter-spacing:0.5px; transition:color 0.18s; }
+  .nav-tab.active .nav-tab-label { color: var(--amber); }
+  .nav-tab.active .nav-tab-count { color: var(--amber); }
+  .nav-divider { width:1.5px; background:var(--border); align-self:stretch; margin:10px 0; }
+
+  /* ══ OVERLAY + SHEETS ══ */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(20,14,4,0.45);
+    backdrop-filter: blur(3px); z-index: 200; display: none; opacity: 0;
+    transition: opacity 0.22s;
+  }
+  .overlay.show { display: block; opacity: 1; }
+  .bottom-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg2); border-top: 2px solid var(--border);
+    border-radius: 22px 22px 0 0; z-index: 201;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+    max-height: 92vh; overflow-y: auto;
+    box-shadow: 0 -6px 30px rgba(80,60,20,0.16);
+  }
+  .bottom-sheet.show { transform: translateY(0); }
+  .sheet-handle { width:38px; height:4px; background:var(--border-mid); border-radius:2px; margin:11px auto 0; }
+  .sheet-title  { font-family:'Cinzel',serif; font-size:17px; font-weight:700; color:var(--amber); padding:13px 20px 2px; }
+  .sheet-subtitle { font-size:12px; font-weight:700; color:var(--text-dim); padding:0 20px 13px; border-bottom:1.5px solid var(--border); }
+
+  /* ══ FORM ══ */
+  .form-body { padding:15px 18px; display:flex; flex-direction:column; gap:13px; }
+  .form-row  { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+  .form-group { display:flex; flex-direction:column; gap:5px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-label { font-size:10.5px; font-weight:900; color:var(--text-mid); text-transform:uppercase; letter-spacing:1.3px; }
+  .form-label .req { color:var(--amber); margin-left:2px; }
+  .form-input, .form-select {
+    background:var(--bg); border:2px solid var(--border); color:var(--text);
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:700;
+    padding:11px 13px; border-radius:var(--radius-sm); outline:none;
+    transition:border-color 0.18s, background 0.18s; width:100%; -webkit-appearance:none;
+  }
+  .form-input:focus, .form-select:focus { border-color:var(--amber); background:var(--amber-pale); }
+  .form-input::placeholder { color:var(--text-dim); font-weight:500; font-size:13.5px; }
+  .form-select option { background:#fff; color:var(--text); }
+  /* highlight expected date input */
+  #f-expected { border-color: var(--orange-border); }
+  #f-expected:focus { border-color: var(--orange); background: var(--orange-light); }
+
+  .type-toggle { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .type-opt {
+    padding:11px 8px; border-radius:var(--radius-sm); border:2px solid var(--border);
+    background:var(--bg3); cursor:pointer; text-align:center; transition:all 0.18s;
+    font-size:13.5px; font-weight:800; color:var(--text-dim);
+  }
+  .type-opt.sel-order  { border-color:var(--blue);   color:var(--blue-dark); background:var(--blue-light); }
+  .type-opt.sel-repair { border-color:var(--purple);  color:var(--purple);    background:var(--purple-light); }
+
+  .form-footer {
+    padding:13px 18px max(18px,env(safe-area-inset-bottom));
+    display:flex; gap:10px; border-top:1.5px solid var(--border);
+    position:sticky; bottom:0; background:var(--bg2);
+  }
+  .btn-cancel {
+    flex:1; background:var(--bg3); border:2px solid var(--border-mid);
+    color:var(--text-mid); padding:13px; border-radius:var(--radius-sm);
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; cursor:pointer;
+  }
+  .btn-save {
+    flex:2; background:linear-gradient(135deg,var(--amber),var(--amber-light));
+    border:none; color:#fff; padding:13px; border-radius:var(--radius-sm);
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:900; cursor:pointer;
+    box-shadow:0 3px 14px rgba(184,114,0,0.32); transition:transform 0.15s;
+  }
+  .btn-save:active { transform:scale(0.97); }
+
+  /* ══ CONFIRM SHEETS ══ */
+  .confirm-body { padding:26px 22px 10px; text-align:center; }
+  .confirm-icon { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:28px; }
+  .confirm-icon.green-icon { background:var(--green-light); border:2px solid var(--green-border); }
+  .confirm-icon.red-icon   { background:var(--red-light);   border:2px solid rgba(192,48,48,0.3); }
+  .confirm-body h3 { font-family:'Cinzel',serif; font-size:18px; margin-bottom:8px; color:var(--text); font-weight:700; }
+  .confirm-body p  { color:var(--text-mid); font-size:14px; font-weight:600; line-height:1.65; }
+  .confirm-footer  { display:flex; gap:10px; padding:18px 18px max(18px,env(safe-area-inset-bottom)); }
+  .btn-confirm-green { flex:1; background:var(--green); border:none; color:#fff; padding:14px; border-radius:var(--radius-sm); font-family:'Nunito',sans-serif; font-size:15px; font-weight:900; cursor:pointer; box-shadow:0 3px 12px rgba(26,138,74,0.32); }
+  .btn-confirm-red   { flex:1; background:var(--red);   border:none; color:#fff; padding:14px; border-radius:var(--radius-sm); font-family:'Nunito',sans-serif; font-size:15px; font-weight:900; cursor:pointer; }
+
+  /* ══ DETAIL SHEET ══ */
+  .detail-header { padding:13px 18px; border-bottom:1.5px solid var(--border); }
+  .detail-customer { font-size:22px; font-weight:900; margin-bottom:7px; color:var(--text); }
+  .detail-badges { display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .detail-section { padding:12px 18px; border-bottom:1.5px solid var(--border); }
+  .detail-section-title { font-size:9.5px; font-weight:900; color:var(--amber); text-transform:uppercase; letter-spacing:2px; margin-bottom:11px; }
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .detail-item .d-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; font-weight:800; }
+  .detail-item .d-value { font-size:15px; font-weight:800; color:var(--text-mid); }
+  .detail-item .d-value.amber  { color:var(--amber);  font-weight:900; }
+  .detail-item .d-value.orange { color:var(--orange); font-weight:900; }
+  .detail-item .d-value.red    { color:var(--red);    font-weight:900; }
+  .detail-actions { padding:13px 18px max(18px,env(safe-area-inset-bottom)); display:flex; gap:10px; }
+  .btn-edit-full {
+    flex:2; background:linear-gradient(135deg,var(--amber),var(--amber-light));
+    border:none; color:#fff; padding:14px; border-radius:var(--radius-sm);
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:900; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    box-shadow:0 3px 12px rgba(184,114,0,0.28);
+  }
+  .btn-del-full {
+    flex:1; background:var(--red-light); border:2px solid rgba(192,48,48,0.25);
+    color:var(--red); padding:14px; border-radius:var(--radius-sm);
+    font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; cursor:pointer;
+  }
+
+  ::-webkit-scrollbar { width:0; height:0; }
+</style>
+</head>
+<body>
+
+<!-- REMINDER BANNER -->
+<div id="reminderBanner">
+  <div class="reminder-banner-inner">
+    <div class="reminder-banner-top">
+      <div class="reminder-banner-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Expected Arrival Reminders
+      </div>
+      <button class="btn-close-banner" onclick="closeBanner()" title="Close">✕</button>
+    </div>
+    <div class="reminder-list" id="reminderList"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>MY ORDERS</h1>
+      <div class="header-subtitle">Order &amp; Repair Tracker</div>
+    </div>
+    <div class="header-right">
+      <button class="btn-bell" id="bellBtn" onclick="toggleBanner()" title="Reminders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="bell-dot"></div>
+      </button>
+      <button class="btn-add" onclick="openAddSheet()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" type="text" placeholder="Search customer, item, maker…" id="searchInput" oninput="renderOrders()">
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill active-all" data-filter="all" onclick="setStatusFilter('all',this)">
+      <span class="pill-label">All</span>
+      <span class="pill-count" id="cnt-all">0</span>
+    </div>
+    <div class="stat-pill" data-filter="Placed" onclick="setStatusFilter('Placed',this)">
+      <span class="pill-label">📋 Placed</span>
+      <span class="pill-count" id="cnt-placed">0</span>
+    </div>
+    <div class="stat-pill" data-filter="Received" onclick="setStatusFilter('Received',this)">
+      <span class="pill-label">✅ Received</span>
+      <span class="pill-count" id="cnt-received">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- LIST -->
+<div class="orders-list" id="ordersList"></div>
+<div class="empty-state" id="emptyState">
+  <div class="empty-icon">💍</div>
+  <h3 id="emptyTitle">No Orders Yet</h3>
+  <p id="emptyMsg">Tap <strong>New</strong> above to add your first entry.</p>
+</div>
+<div class="no-results" id="noResults">No entries match your search.</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-tab active" id="tab-order" onclick="switchTab('ORDER')">
+    <div class="nav-tab-label">ODR</div>
+    <div class="nav-tab-count" id="tab-order-count">0 orders</div>
+  </div>
+  <div class="nav-divider"></div>
+  <div class="nav-tab" id="tab-repair" onclick="switchTab('REPAIR')">
+    <div class="nav-tab-label">REP</div>
+    <div class="nav-tab-count" id="tab-repair-count">0 repairs</div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeAllSheets()"></div>
+
+<!-- ADD/EDIT SHEET -->
+<div class="bottom-sheet" id="formSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="formTitle">New Entry</div>
+  <div class="sheet-subtitle" id="formSubtitle">Fill in the details below</div>
+  <div class="form-body">
+    <div class="form-group full">
+      <div class="form-label">Type <span class="req">*</span></div>
+      <div class="type-toggle">
+        <div class="type-opt sel-order" id="typeOrder" onclick="selectType('ORDER')">📦 Order</div>
+        <div class="type-opt" id="typeRepair" onclick="selectType('REPAIR')">🔧 Repair</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Customer <span class="req">*</span></label>
+        <input class="form-input" id="f-customer" placeholder="Name" type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-input" id="f-number" placeholder="e.g. 9876543210" type="tel">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Item <span class="req">*</span></label>
+        <input class="form-input" id="f-item" placeholder="e.g. Ring, Chain" type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Count</label>
+        <input class="form-input" id="f-count" placeholder="Qty" type="number" min="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Weight (g)</label>
+        <input class="form-input" id="f-weight" placeholder="0.00" type="number" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Size</label>
+        <input class="form-input" id="f-size" placeholder="e.g. 18" type="text">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Maker</label>
+        <input class="form-input" id="f-maker" placeholder="Maker name" type="text" list="dl-makers">
+        <datalist id="dl-makers"></datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Partner</label>
+        <input class="form-input" id="f-partner" placeholder="Partner name" type="text" list="dl-partners">
+        <datalist id="dl-partners"></datalist>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date Placed</label>
+        <input class="form-input" id="f-placed" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date Received</label>
+        <input class="form-input" id="f-received" type="date">
+      </div>
+    </div>
+    <div class="form-group full">
+      <label class="form-label" style="color:var(--orange);">🔔 Expected Arrival Date</label>
+      <input class="form-input" id="f-expected" type="date" placeholder="Set expected arrival date">
+    </div>
+    <div class="form-group full">
+      <label class="form-label">Status <span class="req">*</span></label>
+      <select class="form-select" id="f-status">
+        <option value="Placed">📋 Placed</option>
+        <option value="Received">✅ Received</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-footer">
+    <button class="btn-cancel" onclick="closeAllSheets()">Cancel</button>
+    <button class="btn-save" onclick="saveOrder()">💾 Save</button>
+  </div>
+</div>
+
+<!-- HANDOVER CONFIRM -->
+<div class="bottom-sheet" id="handoverSheet">
+  <div class="sheet-handle"></div>
+  <div class="confirm-body">
+    <div class="confirm-icon green-icon">✔️</div>
+    <h3>Handed Over to Customer?</h3>
+    <p id="handoverMsg">This entry will be permanently removed.</p>
+  </div>
+  <div class="confirm-footer">
+    <button class="btn-cancel" style="flex:1" onclick="closeAllSheets()">Cancel</button>
+    <button class="btn-confirm-green" id="handoverConfirmBtn">✔️ Yes, Remove Entry</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="bottom-sheet" id="confirmSheet">
+  <div class="sheet-handle"></div>
+  <div class="confirm-body">
+    <div class="confirm-icon red-icon">🗑️</div>
+    <h3>Delete this Entry?</h3>
+    <p id="confirmMsg">This cannot be undone.</p>
+  </div>
+  <div class="confirm-footer">
+    <button class="btn-cancel" style="flex:1" onclick="closeAllSheets()">Cancel</button>
+    <button class="btn-confirm-red" id="confirmDeleteBtn">Delete</button>
+  </div>
+</div>
+
+<!-- DETAIL SHEET -->
+<div class="bottom-sheet" id="detailSheet">
+  <div class="sheet-handle"></div>
+  <div id="detailContent"></div>
+</div>
+
+<script>
+const STORAGE_KEY    = 'myorders_v4';
+const DISMISSED_KEY  = 'myorders_dismissed';
+const NOTIFIED_KEY   = 'myorders_notified';
+
+let orders    = JSON.parse(localStorage.getItem(STORAGE_KEY)   || '[]');
+let dismissed = JSON.parse(localStorage.getItem(DISMISSED_KEY) || '[]'); // ids dismissed from banner today
+let notified  = JSON.parse(localStorage.getItem(NOTIFIED_KEY)  || '[]'); // ids already push-notified today
+
+// Migrate old statuses
+orders = orders.map(o => ({
+  ...o,
+  status: (o.status==='Pending'||o.status==='In Progress') ? 'Placed' : o.status
+}));
+
+let editingId = null;
+let currentType = 'ORDER';
+let activeStatusFilter = 'all';
+let activeTab = 'ORDER';
+let pendingDeleteId = null;
+let pendingHandoverId = null;
+let bannerOpen = false;
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function today() { return new Date().toISOString().split('T')[0]; }
+
+// ══ NOTIFICATION SYSTEM ══
+function toDateOnly(d) { return d ? d.split('T')[0] : ''; }
+
+function getAlertOrders() {
+  const tod = today();
+  return orders.filter(o => {
+    if (!o.expected || o.status === 'Received') return false;
+    return toDateOnly(o.expected) <= tod;
+  });
+}
+
+function isOverdue(o) {
+  return o.expected && toDateOnly(o.expected) < today();
+}
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission !== 'denied') {
+    const result = await Notification.requestPermission();
+    return result === 'granted';
+  }
+  return false;
+}
+
+async function fireNotifications() {
+  const granted = await requestNotificationPermission();
+  if (!granted) return;
+  const tod = today();
+  const alerts = getAlertOrders();
+  // Clear notified list if it's a new day
+  const lastDay = localStorage.getItem('myorders_notified_day');
+  if (lastDay !== tod) {
+    notified = [];
+    localStorage.setItem(NOTIFIED_KEY, '[]');
+    localStorage.setItem('myorders_notified_day', tod);
+  }
+  alerts.forEach(o => {
+    if (notified.includes(o.id)) return;
+    const overdue = isOverdue(o);
+    const title = overdue ? `⚠️ Overdue: ${o.customer}` : `🔔 Due Today: ${o.customer}`;
+    const body  = `${o.type === 'REPAIR' ? '🔧 Repair' : '📦 Order'} — ${o.item}. Expected: ${fmtDate(o.expected)}`;
+    try {
+      new Notification(title, { body, icon: '', tag: o.id, renotify: false });
+    } catch(e) {}
+    notified.push(o.id);
+  });
+  localStorage.setItem(NOTIFIED_KEY, JSON.stringify(notified));
+}
+
+function buildBanner() {
+  const tod = today();
+  // Reset dismissed list daily
+  const lastDay = localStorage.getItem('myorders_dismissed_day');
+  if (lastDay !== tod) {
+    dismissed = [];
+    localStorage.setItem(DISMISSED_KEY, '[]');
+    localStorage.setItem('myorders_dismissed_day', tod);
+  }
+  const alerts = getAlertOrders().filter(o => !dismissed.includes(o.id));
+  const bell = document.getElementById('bellBtn');
+  const banner = document.getElementById('reminderBanner');
+
+  if (alerts.length === 0) {
+    bell.classList.remove('has-alerts');
+    banner.classList.remove('show');
+    bannerOpen = false;
+    return;
+  }
+
+  bell.classList.add('has-alerts');
+
+  const list = document.getElementById('reminderList');
+  list.innerHTML = alerts.map(o => {
+    const over = isOverdue(o);
+    return `
+      <div class="reminder-item" id="ri-${o.id}">
+        <div class="reminder-item-left">
+          <div class="reminder-item-name">${o.customer} — ${o.item}</div>
+          <div class="reminder-item-sub">${over ? '⚠️ Overdue — was' : '🔔 Due today —'} ${fmtDate(o.expected)}</div>
+        </div>
+        <span class="reminder-item-tag ${over?'tag-overdue':'tag-due'}">${over?'OVERDUE':'TODAY'}</span>
+        <button class="btn-dismiss-item" onclick="dismissItem('${o.id}')" title="Dismiss">✕</button>
+      </div>`;
+  }).join('');
+}
+
+function toggleBanner() {
+  const banner = document.getElementById('reminderBanner');
+  bannerOpen = !bannerOpen;
+  banner.classList.toggle('show', bannerOpen);
+}
+function closeBanner() {
+  bannerOpen = false;
+  document.getElementById('reminderBanner').classList.remove('show');
+}
+function dismissItem(id) {
+  dismissed.push(id);
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify(dismissed));
+  localStorage.setItem('myorders_dismissed_day', today());
+  const el = document.getElementById('ri-'+id);
+  if (el) el.style.display = 'none';
+  // check if banner is now empty
+  const alerts = getAlertOrders().filter(o => !dismissed.includes(o.id));
+  if (alerts.length === 0) {
+    closeBanner();
+    document.getElementById('bellBtn').classList.remove('has-alerts');
+  }
+}
+
+// ══ TAB SWITCH ══
+function switchTab(tab) {
+  activeTab = tab;
+  activeStatusFilter = 'all';
+  document.querySelectorAll('.stat-pill').forEach(p => {
+    p.className = 'stat-pill';
+    if (p.dataset.filter === 'all') p.classList.add('active-all');
+  });
+  document.getElementById('tab-order').classList.toggle('active', tab==='ORDER');
+  document.getElementById('tab-repair').classList.toggle('active', tab==='REPAIR');
+  document.getElementById('emptyTitle').textContent = tab==='ORDER' ? 'No Orders Yet' : 'No Repairs Yet';
+  document.getElementById('emptyMsg').innerHTML = `Tap <strong>New</strong> above to add your first ${tab==='ORDER'?'order':'repair'}.`;
+  renderOrders();
+}
+
+// ══ RENDER ══
+function renderOrders() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const list = document.getElementById('ordersList');
+  const tod = today();
+
+  let filtered = orders.filter(o => {
+    const mt = o.type === activeTab;
+    const ms = activeStatusFilter==='all' || o.status===activeStatusFilter;
+    const mq = !q || [o.customer,o.item,o.maker,o.partner,o.number].some(f=>f&&f.toLowerCase().includes(q));
+    return mt && ms && mq;
+  }).slice().reverse();
+
+  list.innerHTML = '';
+  const tabFiltered = orders.filter(o=>o.type===activeTab);
+  document.getElementById('emptyState').classList.toggle('show', tabFiltered.length===0);
+  document.getElementById('noResults').classList.toggle('show', tabFiltered.length>0 && filtered.length===0);
+
+  filtered.forEach(o => {
+    const alertToday  = o.expected && toDateOnly(o.expected)===tod && o.status!=='Received';
+    const alertOver   = o.expected && toDateOnly(o.expected)<tod  && o.status!=='Received';
+    const hasAlert    = alertToday || alertOver;
+
+    const card = document.createElement('div');
+    card.className = `order-card type-${o.type.toLowerCase()}${hasAlert?' has-alert':''}`;
+
+    const phoneHtml = o.number
+      ? `<a class="phone-link" href="tel:${o.number}" onclick="event.stopPropagation()">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+           ${o.number}
+         </a>` : '';
+
+    const alertStrip = hasAlert
+      ? `<div class="card-alert-strip${alertOver?' overdue':''}">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+           ${alertOver ? `⚠️ Overdue — was expected ${fmtDate(o.expected)}` : `🔔 Expected arrival is today — ${fmtDate(o.expected)}`}
+         </div>` : '';
+
+    const expDateHtml = o.expected
+      ? `<br>Expected: <strong class="exp-date${alertOver?' overdue':''}">${fmtDate(o.expected)}</strong>` : '';
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-top-left">
+          <span class="type-badge ${o.type==='REPAIR'?'badge-repair':'badge-order'}">${o.type==='REPAIR'?'🔧 Repair':'📦 Order'}</span>
+          ${phoneHtml}
+        </div>
+        <span class="status-chip ${o.status==='Received'?'chip-received':'chip-placed'}">${o.status==='Received'?'✅':'📋'} ${o.status}</span>
+      </div>
+      ${alertStrip}
+      <div class="card-body">
+        <div class="customer-name">${o.customer||'—'}</div>
+        <div class="card-meta">
+          <div class="meta-row"><div class="meta-label">Item</div><div class="meta-value amber">${o.item||'—'}</div></div>
+          <div class="meta-row"><div class="meta-label">Count</div><div class="meta-value">${o.count||'—'}</div></div>
+          ${o.weight  ? `<div class="meta-row"><div class="meta-label">Weight</div><div class="meta-value">${o.weight}g</div></div>` : ''}
+          ${o.size    ? `<div class="meta-row"><div class="meta-label">Size</div><div class="meta-value">${o.size}</div></div>` : ''}
+          ${o.maker   ? `<div class="meta-row"><div class="meta-label">Maker</div><div class="meta-value">${o.maker}</div></div>` : ''}
+          ${o.partner ? `<div class="meta-row"><div class="meta-label">Partner</div><div class="meta-value">${o.partner}</div></div>` : ''}
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="dates">
+          Placed: <strong>${fmtDate(o.placed)}</strong>
+          ${o.received ? `<br>Received: <strong>${fmtDate(o.received)}</strong>` : ''}
+          ${expDateHtml}
+        </div>
+        <div class="card-actions">
+          <button class="btn-handover" title="Handed over to customer" onclick="event.stopPropagation();askHandover('${o.id}')">✔️</button>
+          <button class="btn-icon edit" title="Edit" onclick="event.stopPropagation();openEdit('${o.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon trash" title="Delete" onclick="event.stopPropagation();confirmDelete('${o.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>`;
+    card.addEventListener('click', () => openDetail(o.id));
+    list.appendChild(card);
+  });
+
+  // counts
+  const tabSet = orders.filter(o=>o.type===activeTab);
+  document.getElementById('cnt-all').textContent      = tabSet.length;
+  document.getElementById('cnt-placed').textContent   = tabSet.filter(o=>o.status==='Placed').length;
+  document.getElementById('cnt-received').textContent = tabSet.filter(o=>o.status==='Received').length;
+  const tabOrders  = orders.filter(o=>o.type==='ORDER');
+  const tabRepairs = orders.filter(o=>o.type==='REPAIR');
+  document.getElementById('tab-order-count').textContent  = tabOrders.length  + (tabOrders.length===1?' order':' orders');
+  document.getElementById('tab-repair-count').textContent = tabRepairs.length + (tabRepairs.length===1?' repair':' repairs');
+
+  updateDatalist();
+  buildBanner();
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d+'T00:00:00').toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' });
+}
+function updateDatalist() {
+  document.getElementById('dl-makers').innerHTML   = [...new Set(orders.map(o=>o.maker).filter(Boolean))].map(m=>`<option value="${m}">`).join('');
+  document.getElementById('dl-partners').innerHTML = [...new Set(orders.map(o=>o.partner).filter(Boolean))].map(p=>`<option value="${p}">`).join('');
+}
+
+// ══ STATUS FILTER ══
+function setStatusFilter(s, el) {
+  activeStatusFilter = s;
+  document.querySelectorAll('.stat-pill').forEach(p => {
+    p.className = 'stat-pill';
+    if (p.dataset.filter===s) p.classList.add(s==='all'?'active-all':s==='Placed'?'active-placed':'active-received');
+  });
+  renderOrders();
+}
+
+// ══ HANDOVER ══
+function askHandover(id) {
+  const o = orders.find(x=>x.id===id); if (!o) return;
+  pendingHandoverId = id;
+  document.getElementById('handoverMsg').textContent =
+    `"${o.customer}" — ${o.item}${o.number?' ('+o.number+')':''}. This entry will be permanently removed.`;
+  document.getElementById('handoverConfirmBtn').onclick = () => {
+    orders = orders.filter(x=>x.id!==pendingHandoverId);
+    save(); closeAllSheets(); renderOrders();
+  };
+  showSheet('handoverSheet');
+}
+
+// ══ DELETE ══
+function confirmDelete(id) {
+  const o = orders.find(x=>x.id===id); if (!o) return;
+  pendingDeleteId = id;
+  document.getElementById('confirmMsg').textContent =
+    `Delete entry for "${o.customer}" (${o.item})? This cannot be undone.`;
+  document.getElementById('confirmDeleteBtn').onclick = () => {
+    orders = orders.filter(x=>x.id!==pendingDeleteId);
+    save(); closeAllSheets(); renderOrders();
+  };
+  showSheet('confirmSheet');
+}
+
+// ══ FORM ══
+function openAddSheet() {
+  editingId = null; currentType = activeTab;
+  document.getElementById('formTitle').textContent    = activeTab==='ORDER'?'New Order':'New Repair';
+  document.getElementById('formSubtitle').textContent = 'Fill in the details below';
+  clearForm();
+  document.getElementById('f-placed').value = today();
+  showSheet('formSheet');
+}
+function openEdit(id) {
+  const o = orders.find(x=>x.id===id); if (!o) return;
+  editingId = id; currentType = o.type||'ORDER';
+  document.getElementById('formTitle').textContent    = 'Edit Entry';
+  document.getElementById('formSubtitle').textContent = `Editing: ${o.customer}`;
+  document.getElementById('f-customer').value = o.customer||'';
+  document.getElementById('f-number').value   = o.number  ||'';
+  document.getElementById('f-item').value     = o.item    ||'';
+  document.getElementById('f-count').value    = o.count   ||'';
+  document.getElementById('f-weight').value   = o.weight  ||'';
+  document.getElementById('f-size').value     = o.size    ||'';
+  document.getElementById('f-maker').value    = o.maker   ||'';
+  document.getElementById('f-partner').value  = o.partner ||'';
+  document.getElementById('f-placed').value   = o.placed  ||'';
+  document.getElementById('f-received').value = o.received||'';
+  document.getElementById('f-expected').value = o.expected||'';
+  document.getElementById('f-status').value   = o.status  ||'Placed';
+  updateTypeUI();
+  closeSheet('detailSheet');
+  showSheet('formSheet');
+}
+function clearForm() {
+  ['customer','number','item','count','weight','size','maker','partner','placed','received','expected']
+    .forEach(f => document.getElementById('f-'+f).value='');
+  document.getElementById('f-status').value='Placed';
+  selectType(activeTab);
+}
+function selectType(t) { currentType=t; updateTypeUI(); }
+function updateTypeUI() {
+  document.getElementById('typeOrder').className  = 'type-opt'+(currentType==='ORDER' ?' sel-order':'');
+  document.getElementById('typeRepair').className = 'type-opt'+(currentType==='REPAIR'?' sel-repair':'');
+}
+function saveOrder() {
+  const customer = document.getElementById('f-customer').value.trim();
+  const item     = document.getElementById('f-item').value.trim();
+  if (!customer||!item) { alert('Customer and Item are required!'); return; }
+  const obj = {
+    id: editingId||genId(), type: currentType, customer,
+    number:   document.getElementById('f-number').value.trim(),
+    item,
+    count:    document.getElementById('f-count').value.trim(),
+    weight:   document.getElementById('f-weight').value.trim(),
+    size:     document.getElementById('f-size').value.trim(),
+    maker:    document.getElementById('f-maker').value.trim(),
+    partner:  document.getElementById('f-partner').value.trim(),
+    placed:   document.getElementById('f-placed').value,
+    received: document.getElementById('f-received').value,
+    expected: document.getElementById('f-expected').value,
+    status:   document.getElementById('f-status').value,
+  };
+  if (editingId) { const i=orders.findIndex(x=>x.id===editingId); if(i>-1) orders[i]=obj; }
+  else orders.push(obj);
+  activeTab = obj.type;
+  save(); closeAllSheets(); switchTab(activeTab);
+}
+
+// ══ DETAIL ══
+function openDetail(id) {
+  const o = orders.find(x=>x.id===id); if (!o) return;
+  const over = isOverdue(o);
+  const alertToday = o.expected && toDateOnly(o.expected)===today() && o.status!=='Received';
+  const expClass = over?'red':alertToday?'orange':'';
+
+  const phoneHtml = o.number
+    ? `<a href="tel:${o.number}" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;font-size:14px;font-weight:800;color:var(--blue-dark);text-decoration:none;background:var(--blue-light);border:1.5px solid var(--blue-border);padding:4px 12px;border-radius:50px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        ${o.number}
+       </a>`
+    : '—';
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-customer">${o.customer}</div>
+      <div class="detail-badges">
+        <span class="type-badge ${o.type==='REPAIR'?'badge-repair':'badge-order'}">${o.type==='REPAIR'?'🔧 Repair':'📦 Order'}</span>
+        <span class="status-chip ${o.status==='Received'?'chip-received':'chip-placed'}">${o.status==='Received'?'✅':'📋'} ${o.status}</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Item Details</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="d-label">Item</div><div class="d-value amber">${o.item||'—'}</div></div>
+        <div class="detail-item"><div class="d-label">Count</div><div class="d-value">${o.count||'—'}</div></div>
+        <div class="detail-item"><div class="d-label">Weight</div><div class="d-value">${o.weight?o.weight+'g':'—'}</div></div>
+        <div class="detail-item"><div class="d-label">Size</div><div class="d-value">${o.size||'—'}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Contact &amp; People</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="d-label">Phone</div><div class="d-value">${phoneHtml}</div></div>
+        <div class="detail-item"><div class="d-label">Maker</div><div class="d-value">${o.maker||'—'}</div></div>
+        <div class="detail-item"><div class="d-label">Partner</div><div class="d-value">${o.partner||'—'}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Dates</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="d-label">Date Placed</div><div class="d-value">${fmtDate(o.placed)}</div></div>
+        <div class="detail-item"><div class="d-label">Date Received</div><div class="d-value">${fmtDate(o.received)}</div></div>
+        <div class="detail-item" style="grid-column:1/-1">
+          <div class="d-label">🔔 Expected Arrival</div>
+          <div class="d-value ${expClass}">${o.expected ? fmtDate(o.expected)+(over?' — ⚠️ Overdue':alertToday?' — 🔔 Due Today':'') : '—'}</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-del-full" onclick="closeSheet('detailSheet');confirmDelete('${o.id}')">🗑 Delete</button>
+      <button class="btn-edit-full" onclick="openEdit('${o.id}')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Entry
+      </button>
+    </div>`;
+  showSheet('detailSheet');
+}
+
+// ══ SHEETS ══
+function showSheet(id) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+}
+function closeSheet(id) { document.getElementById(id).classList.remove('show'); }
+function closeAllSheets() {
+  ['formSheet','handoverSheet','confirmSheet','detailSheet'].forEach(closeSheet);
+  document.getElementById('overlay').classList.remove('show');
+  editingId = null;
+}
+
+// ══ INIT ══
+switchTab('ORDER');
+fireNotifications();
+// Re-check every hour
+setInterval(fireNotifications, 60 * 60 * 1000);
+</script>
+</body>
+</html>
